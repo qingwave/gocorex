@@ -3,8 +3,11 @@ module github.com/qingwave/gocorex
 go 1.18
 
 require (
+	github.com/go-logr/logr v1.2.3
+	github.com/go-logr/stdr v1.2.2
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/spaolacci/murmur3 v1.1.0
+	go.uber.org/atomic v1.9.0
 )
 
 require (
