@@ -214,7 +214,7 @@ func (c *Cron) runTask() {
 
 	go func() {
 		start := time.Now()
-		if err := task.Job.Exec(); err != nil {
+		if err := task.Exec(); err != nil {
 			c.logger.Info(fmt.Sprintf("Run job [%s] failed: %v", task.Name(), err))
 			return
 		}

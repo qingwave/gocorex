@@ -14,8 +14,8 @@ Gocorex is a collection golang useful utils for distributed system and microserv
 - [TimeWheel](x/cron/timewheel.go)
 
 ### Data structures
-- [Set](x/containerx/set.go), hash set
-- [Heap](x/containerx/heap.go)
+- [Set](x/containerx/set.go), hash set with generics
+- [Heap](x/containerx/heap.go), heap with generics
 
 ### utils
 - [trace](x/trace), recoding the latency of operations
