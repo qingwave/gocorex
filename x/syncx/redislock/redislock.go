@@ -1,4 +1,4 @@
-package mutex
+package redislock
 
 import (
 	"context"
@@ -6,12 +6,17 @@ import (
 	"math"
 	"time"
 
+	"github.com/qingwave/gocorex/x/syncx"
 	"github.com/qingwave/gocorex/x/utils/wait"
 
 	"github.com/go-redis/redis/v8"
 )
 
-func NewRedisLock(config RedisLockConfig) (*RedisLock, error) {
+const (
+	Jitter = 1.2
+)
+
+func New(config RedisLockConfig) (syncx.Locker, error) {
 	if config.Client == nil {
 		return nil, fmt.Errorf("redis client must not be nil")
 	}
@@ -38,6 +43,8 @@ type RedisLockConfig struct {
 	Key        string
 	ID         string
 	Expiration time.Duration
+
+	LockRetryDuration time.Duration
 }
 
 type RedisLock struct {
@@ -48,13 +55,11 @@ func (l *RedisLock) TryLock(ctx context.Context) (bool, error) {
 	return l.Client.SetNX(ctx, l.Key, l.ID, l.Expiration).Result()
 }
 
-func (l *RedisLock) Lock(ctx context.Context, period time.Duration, factor, jitter float64) error {
+func (l *RedisLock) Lock(ctx context.Context) error {
 	backoff := wait.Backoff{
-		Duration: period,
-		Factor:   factor,
-		Jitter:   jitter,
+		Duration: l.LockRetryDuration,
+		Jitter:   Jitter,
 		Steps:    math.MaxUint32,
-		Cap:      l.Expiration,
 	}
 	return wait.ExponentialBackoffWithContext(ctx, backoff, func() (bool, error) {
 		return l.TryLock(ctx)
@@ -78,4 +83,8 @@ func (l *RedisLock) UnLock(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (l *RedisLock) Close() error {
+	return l.UnLock(context.Background())
 }

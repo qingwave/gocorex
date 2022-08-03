@@ -7,9 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qingwave/gocorex/x/mutex"
-
 	"github.com/go-redis/redis/v8"
+	"github.com/qingwave/gocorex/x/syncx/redislock"
 )
 
 func main() {
@@ -23,18 +22,19 @@ func main() {
 	worker := func(i int) {
 		id := fmt.Sprintf("worker%d", i)
 
-		m, err := mutex.NewRedisLock(mutex.RedisLockConfig{
-			Client:     client,
-			Key:        "test-lock",
-			ID:         id,
-			Expiration: 10 * time.Second,
+		m, err := redislock.New(redislock.RedisLockConfig{
+			Client:            client,
+			Key:               "test-lock",
+			ID:                id,
+			Expiration:        10 * time.Second,
+			LockRetryDuration: 1 * time.Second,
 		})
 
 		if err != nil {
 			log.Fatalf("failed to create lock: %v", err)
 		}
 
-		err = m.Lock(context.Background(), 100*time.Millisecond, 1, 1.1)
+		err = m.Lock(context.Background())
 		log.Printf("worker %d obtain lock, err: %v", i, err)
 		defer m.UnLock(context.Background())
 
