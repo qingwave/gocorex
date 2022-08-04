@@ -4,6 +4,10 @@ import (
 	"sync"
 )
 
+func NewGroup() *Group {
+	return &Group{}
+}
+
 type Group struct {
 	wg sync.WaitGroup
 }

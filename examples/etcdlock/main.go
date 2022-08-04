@@ -44,7 +44,7 @@ func main() {
 		time.Sleep(2 * time.Second)
 	}
 
-	wg := group.Group{}
+	wg := group.NewGroup()
 	for i := 1; i <= 5; i++ {
 		id := i
 		wg.Go(func() {
