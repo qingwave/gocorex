@@ -10,7 +10,6 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
 	go.uber.org/atomic v1.9.0
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (
