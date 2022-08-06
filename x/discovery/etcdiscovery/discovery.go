@@ -1,4 +1,4 @@
-package discovery
+package etcdiscovery
 
 import (
 	"context"

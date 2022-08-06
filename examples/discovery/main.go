@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx/discovery"
+	"github.com/qingwave/gocorex/x/discovery/etcdiscovery"
 	"github.com/qingwave/gocorex/x/syncx/group"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
@@ -25,27 +25,27 @@ func main() {
 		id := fmt.Sprintf("worker-%d", i)
 		val := fmt.Sprintf("10.0.0.%d", i)
 
-		sd, err := discovery.New(discovery.EtcdDiscoveryConfig{
+		sd, err := etcdiscovery.New(etcdiscovery.EtcdDiscoveryConfig{
 			Client:     client,
 			Prefix:     "/services",
 			Key:        id,
 			Val:        val,
 			TTLSeconds: 2,
-			Callbacks: discovery.DiscoveryCallbacks{
-				OnStartedDiscovering: func(services []discovery.Service) {
+			Callbacks: etcdiscovery.DiscoveryCallbacks{
+				OnStartedDiscovering: func(services []etcdiscovery.Service) {
 					log.Printf("[%s], onstarted, services: %v", id, services)
 				},
 				OnStoppedDiscovering: func() {
 					log.Printf("[%s], onstoped", id)
 				},
-				OnServiceChanged: func(services []discovery.Service, event discovery.DiscoveryEvent) {
+				OnServiceChanged: func(services []etcdiscovery.Service, event etcdiscovery.DiscoveryEvent) {
 					log.Printf("[%s], onchanged, services: %v, event: %v", id, services, event)
 				},
 			},
 		})
 
 		if err != nil {
-			log.Fatalf("failed to create service discovery: %v", err)
+			log.Fatalf("failed to create service etcdiscovery: %v", err)
 		}
 		defer sd.Close()
 
