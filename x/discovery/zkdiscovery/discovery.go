@@ -121,10 +121,11 @@ func (d *ZkDiscovery) Watch(ctx context.Context) error {
 	}()
 
 loop:
-	_, _, ch, err := d.conn.ChildrenW(d.Path)
+	children, _, ch, err := d.conn.ChildrenW(d.Path)
 	if err != nil {
 		return err
 	}
+	d.setServices(containerx.NewSet(children...))
 	for {
 		select {
 		case <-d.watchContext.Done():
