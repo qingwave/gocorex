@@ -33,12 +33,12 @@ func (g *ErrGroup) Wait() error {
 	return g.err
 }
 
-func (g *ErrGroup) Go(f func() error) {
+func (g *ErrGroup) Go(f func(ctx context.Context) error) {
 	g.wg.Add(1)
 
 	go func() {
 		defer g.wg.Done()
-		if err := f(); err != nil {
+		if err := f(g.ctx); err != nil {
 			g.errOnce.Do(func() {
 				g.err = err
 				if g.cancel != nil {
