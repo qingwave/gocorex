@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/qingwave/gocorex/bloom"
+	"github.com/qingwave/gocorex/bloom/redisbitset"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -15,9 +17,13 @@ func main() {
 		DB:       0,
 	})
 
+	redisBitSet, err := redisbitset.New(client, "test-bloom")
+	if err != nil {
+		log.Fatalf("faield to create redis bitset, %v", err)
+	}
+
 	filter, err := bloom.New(bloom.BloomFilterConfig{
-		Client: client,
-		Key:    "test-bloom",
+		BitSet: redisBitSet,
 		Bits:   2 ^ 16,
 	})
 
@@ -36,7 +42,7 @@ func main() {
 	}
 
 	add := func(key string) {
-		if err := filter.Add([]byte(key)); err != nil {
+		if err := filter.Add([]byte(key), bloom.WithContext(context.TODO())); err != nil {
 			log.Printf("failed to add key %s: %v", key, err)
 		}
 		log.Printf("add key %s successfully", key)

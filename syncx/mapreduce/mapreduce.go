@@ -37,7 +37,7 @@ type (
 		Filter(filters ...Filter) Interface
 		Reduce(reducer Reducer) Interface
 		Do() (any, error)
-		Error() error
+		Err() error
 	}
 )
 
@@ -74,7 +74,7 @@ type mapreduce struct {
 	err error
 }
 
-func (mr *mapreduce) Error() error {
+func (mr *mapreduce) Err() error {
 	return mr.err
 }
 

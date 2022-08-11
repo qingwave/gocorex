@@ -1,85 +1,138 @@
 package pubsub
 
 import (
-	"context"
-	"strings"
-
-	"go.etcd.io/etcd/api/v3/mvccpb"
-	clientv3 "go.etcd.io/etcd/client/v3"
+	"sync"
 )
 
-const DefaultTTLSeconds = 7 * 24 * 3600
+type Topic struct {
+	ID   string
+	From string
+	Msg  string
+}
 
-func New(config EtcdPubSubConfig) (*EtcdPubSub, error) {
-	if config.TTLSeconds == 0 {
-		config.TTLSeconds = DefaultTTLSeconds
+type Broker struct {
+	mu sync.RWMutex
+
+	topicBuffer chan Topic
+	subscribers map[string][]*Subscriber
+}
+
+func NewBroker(bufSize int) *Broker {
+	return &Broker{
+		topicBuffer: make(chan Topic, bufSize),
+		subscribers: make(map[string][]*Subscriber),
 	}
-	config.Prefix = strings.TrimSuffix(config.Prefix, "/") + "/"
-	return &EtcdPubSub{config}, nil
 }
 
-type EtcdPubSubConfig struct {
-	Client     *clientv3.Client
-	Prefix     string
-	TTLSeconds int
+func (b *Broker) Subscribe(topicID string, subscriber *Subscriber) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	b.subscribers[topicID] = append(b.subscribers[topicID], subscriber)
 }
 
-type Msg struct {
-	Name string
-	Val  string
-}
+func (b *Broker) Unsubscribe(topicID string, subscriber *Subscriber) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 
-type EtcdPubSub struct {
-	EtcdPubSubConfig
-}
-
-func (ps *EtcdPubSub) SubscribeFromRev(ctx context.Context, topic string, rev int64) (<-chan Msg, error) {
-	wch := ps.Client.Watch(ctx, ps.Prefix+topic, clientv3.WithPrefix(), clientv3.WithFilterDelete(), clientv3.WithRev(rev))
-
-	msg := make(chan Msg)
-	go func() {
-		defer close(msg)
-
-		for {
-			wc, ok := <-wch
-			if !ok {
-				return
-			}
-
-			for _, ev := range wc.Events {
-				if ev.Type != mvccpb.PUT {
-					break
-				}
-				name := strings.TrimPrefix(string(ev.Kv.Key), ps.Prefix+topic+"/")
-				msg <- Msg{Name: name, Val: string(ev.Kv.Value)}
-			}
+	for i, sub := range b.subscribers[topicID] {
+		if sub.name == subscriber.name {
+			b.subscribers[topicID] = append(b.subscribers[topicID][:i], b.subscribers[topicID][i+1:]...)
+			return
 		}
-	}()
-
-	return msg, nil
-}
-
-// Subscribe a topic from start
-func (ps *EtcdPubSub) SubscribeFromStart(ctx context.Context, topic string) (<-chan Msg, error) {
-	return ps.SubscribeFromRev(ctx, topic, 1)
-}
-
-// Subscribe a topic from now
-func (ps *EtcdPubSub) Subscribe(ctx context.Context, topic string) (<-chan Msg, error) {
-	return ps.SubscribeFromRev(ctx, topic, 0)
-}
-
-func (ps *EtcdPubSub) Publish(ctx context.Context, topic string, msg Msg) error {
-	le, err := ps.Client.Lease.Grant(ctx, int64(ps.TTLSeconds))
-	if err != nil {
-		return err
 	}
-
-	_, err = ps.Client.Put(ctx, ps.Prefix+topic+"/"+msg.Name, msg.Val, clientv3.WithLease(le.ID))
-	return err
 }
 
-func (ps *EtcdPubSub) Reset(ctx context.Context, topic string) error {
-	_, err := ps.Client.Delete(ctx, ps.Prefix+topic+"/", clientv3.WithPrefix())
-	return err
+func (b *Broker) Publish(topic Topic) {
+	b.topicBuffer <- topic
+}
+
+func (b *Broker) Stop() {
+	for _, subs := range b.subscribers {
+		for _, sub := range subs {
+			sub.Stop()
+		}
+	}
+	close(b.topicBuffer)
+}
+
+func (b *Broker) Run() {
+	for {
+		topic, ok := <-b.topicBuffer
+		if !ok {
+			return
+		}
+		for _, sub := range b.subscribers[topic.ID] {
+			sub.Receive(topic)
+		}
+	}
+}
+
+type ConsumeFunc func(topic Topic)
+
+type Subscriber struct {
+	name   string
+	buf    chan Topic
+	topics map[string]ConsumeFunc
+
+	broker *Broker
+}
+
+func NewSubscriber(name string, broker *Broker) *Subscriber {
+	sub := &Subscriber{
+		name:   name,
+		buf:    make(chan Topic, 1),
+		topics: make(map[string]ConsumeFunc),
+		broker: broker,
+	}
+	go sub.Consume()
+	return sub
+}
+
+func (s *Subscriber) Subscribe(topicID string, consume ConsumeFunc) {
+	s.topics[topicID] = consume
+	s.broker.Subscribe(topicID, s)
+}
+
+func (s *Subscriber) Unsubscribe(topicID string) {
+	delete(s.topics, topicID)
+	s.broker.Unsubscribe(topicID, s)
+}
+
+func (s *Subscriber) Receive(topic Topic) {
+	s.buf <- topic
+}
+
+func (s *Subscriber) Consume() {
+	for topic := range s.buf {
+		consume, ok := s.topics[topic.ID]
+		if !ok {
+			continue
+		}
+		consume(topic)
+	}
+}
+
+func (s *Subscriber) Stop() {
+	for topic := range s.topics {
+		s.Unsubscribe(topic)
+	}
+	close(s.buf)
+}
+
+type Publisher struct {
+	name   string
+	broker *Broker
+}
+
+func NewPublisher(name string, broker *Broker) *Publisher {
+	return &Publisher{
+		name:   name,
+		broker: broker,
+	}
+}
+
+func (p *Publisher) Publish(topic Topic) {
+	topic.From = p.name
+	p.broker.Publish(topic)
 }

@@ -26,7 +26,7 @@ type Controller[T any] struct {
 	handler func(item T)
 }
 
-func (c *Controller[T]) Error() error {
+func (c *Controller[T]) Err() error {
 	return c.err
 }
 
