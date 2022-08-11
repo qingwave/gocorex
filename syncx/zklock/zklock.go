@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-zookeeper/zk"
-	"github.com/qingwave/gocorex/x/syncx"
+	"github.com/qingwave/gocorex/syncx"
 )
 
 func New(config ZkLockConfig) (syncx.Locker, error) {

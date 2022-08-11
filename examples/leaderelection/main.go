@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx/leaderelection"
+	"github.com/qingwave/gocorex/syncx/leaderelection"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/qingwave/gocorex/x/syncx/workqueue"
+	"github.com/qingwave/gocorex/syncx/workqueue"
 )
 
 type Option func(*ControllerOption)

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/qingwave/gocorex/x/containerx"
+	"github.com/qingwave/gocorex/containerx"
 
 	"github.com/go-logr/logr"
 )

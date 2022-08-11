@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/qingwave/gocorex/x/syncx/group"
-	"github.com/qingwave/gocorex/x/syncx/workqueue"
+	"github.com/qingwave/gocorex/syncx/group"
+	"github.com/qingwave/gocorex/syncx/workqueue"
 )
 
 type (

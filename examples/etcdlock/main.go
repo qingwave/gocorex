@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx/etcdlock"
-	"github.com/qingwave/gocorex/x/syncx/group"
+	"github.com/qingwave/gocorex/syncx/etcdlock"
+	"github.com/qingwave/gocorex/syncx/group"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 )

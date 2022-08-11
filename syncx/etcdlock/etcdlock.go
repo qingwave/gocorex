@@ -3,7 +3,7 @@ package etcdlock
 import (
 	"context"
 
-	"github.com/qingwave/gocorex/x/syncx"
+	"github.com/qingwave/gocorex/syncx"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"

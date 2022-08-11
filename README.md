@@ -5,36 +5,36 @@ Gocorex is a collection golang useful utils for distributed system and microserv
 ## Features
 
 ### Distributed Bloom Filter
-- [Redis Bloom](x/bloom)
+- [Redis Bloom](bloom)
 
 ### Distributed Rate Limiter
-- [Redis RateLimiter](x/rate)
+- [Redis RateLimiter](rate)
 
 ### Distributed Lock
-- [Redis Lock](x/syncx/redislock)
-- [Etcd Lock](x/syncx/etcdlock)
-- [ZooKeeper Lock](x/syncx/zklock)
+- [Redis Lock](syncx/redislock)
+- [Etcd Lock](syncx/etcdlock)
+- [ZooKeeper Lock](syncx/zklock)
 
 ### Service Discovery
-- [Etcd discovery](x/discovery/etcdiscovery/)
-- [ZooKeeper discovery](x/discovery/zkdiscovery/)
+- [Etcd discovery](discovery/etcdiscovery/)
+- [ZooKeeper discovery](discovery/zkdiscovery/)
 
 ### PubSub
-- [Etcd PubSub](x/pubsub)
+- [Etcd PubSub](pubsub)
 
 ### Cron
-- [Cron with min-heap](x/cron/cron.go), implemented by minimal heap
-- [TimeWheel](x/cron/timewheel.go)
+- [Cron with min-heap](cron/cron.go), implemented by minimal heap
+- [TimeWheel](cron/timewheel.go)
 
 ### Concurrency
-- [Group](x/syncx/group/group.go), wrap the WaitGroup
-- [ErrGroup](x/syncx/group/errgroup.go), run groups of goroutines, context cancel when meet error
-- [CtrlGroup](x/syncx/group/ctrlgroup.go), run special number goroutines
+- [Group](syncx/group/group.go), wrap the WaitGroup
+- [ErrGroup](syncx/group/errgroup.go), run groups of goroutines, context cancel when meet error
+- [CtrlGroup](syncx/group/ctrlgroup.go), run special number goroutines
 
 ### Data structures
-- [Set](x/containerx/set.go), hash set with generics
-- [Heap](x/containerx/heap.go), heap with generics
+- [Set](containerx/set.go), hash set with generics
+- [Heap](containerx/heap.go), heap with generics
 
 ### utils
-- [trace](x/trace), recoding the latency of operations
-- [retry](x/retry), retry operation on conditional
+- [trace](trace), recoding the latency of operations
+- [retry](retry), retry operation on conditional

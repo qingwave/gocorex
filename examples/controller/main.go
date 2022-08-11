@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx/controller"
+	"github.com/qingwave/gocorex/syncx/controller"
 )
 
 func main() {

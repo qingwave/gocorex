@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/qingwave/gocorex/x/utils/clock"
+	"github.com/qingwave/gocorex/utils/clock"
 )
 
 // For any test of the style:

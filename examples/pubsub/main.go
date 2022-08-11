@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/pubsub"
+	"github.com/qingwave/gocorex/pubsub"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

@@ -6,8 +6,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx"
-	"github.com/qingwave/gocorex/x/utils/wait"
+	"github.com/qingwave/gocorex/syncx"
+	"github.com/qingwave/gocorex/utils/wait"
 
 	"github.com/go-redis/redis/v8"
 )

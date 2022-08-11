@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/qingwave/gocorex/x/syncx/redislock"
+	"github.com/qingwave/gocorex/syncx/redislock"
 )
 
 func main() {

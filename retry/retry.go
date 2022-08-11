@@ -1,6 +1,6 @@
 package retry
 
-import "github.com/qingwave/gocorex/x/utils/wait"
+import "github.com/qingwave/gocorex/utils/wait"
 
 func RetryOnError(backoff wait.Backoff, fn func() error) error {
 	return RetryOnCondition(backoff, func(err error) bool {

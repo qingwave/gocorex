@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/discovery/zkdiscovery"
-	"github.com/qingwave/gocorex/x/syncx/group"
+	"github.com/qingwave/gocorex/discovery/zkdiscovery"
+	"github.com/qingwave/gocorex/syncx/group"
 )
 
 func main() {

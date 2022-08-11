@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/stdr"
-	"github.com/qingwave/gocorex/x/cron"
+	"github.com/qingwave/gocorex/cron"
 )
 
 func TestCron(c cron.Interface) {

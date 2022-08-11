@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/qingwave/gocorex/x/syncx/mapreduce"
+	"github.com/qingwave/gocorex/syncx/mapreduce"
 )
 
 func main() {

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-zookeeper/zk"
-	"github.com/qingwave/gocorex/x/syncx/group"
-	"github.com/qingwave/gocorex/x/syncx/zklock"
+	"github.com/qingwave/gocorex/syncx/group"
+	"github.com/qingwave/gocorex/syncx/zklock"
 )
 
 func main() {

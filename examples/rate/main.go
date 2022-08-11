@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/qingwave/gocorex/x/rate"
+	"github.com/qingwave/gocorex/rate"
 
 	"github.com/go-redis/redis/v8"
 )

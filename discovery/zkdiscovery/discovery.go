@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-zookeeper/zk"
-	"github.com/qingwave/gocorex/x/containerx"
+	"github.com/qingwave/gocorex/containerx"
 )
 
 const defaultTimeout = 5 * time.Second

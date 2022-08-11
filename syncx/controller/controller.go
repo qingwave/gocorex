@@ -3,7 +3,7 @@ package controller
 import (
 	"fmt"
 
-	"github.com/qingwave/gocorex/x/syncx/group"
+	"github.com/qingwave/gocorex/syncx/group"
 )
 
 func New[T any](opts ...Option) *Controller[T] {

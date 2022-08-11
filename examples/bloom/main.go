@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/qingwave/gocorex/x/bloom"
+	"github.com/qingwave/gocorex/bloom"
 
 	"github.com/go-redis/redis/v8"
 )
