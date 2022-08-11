@@ -5,16 +5,10 @@ import (
 	"fmt"
 
 	"github.com/qingwave/gocorex/x/syncx/group"
+	"github.com/qingwave/gocorex/x/syncx/workqueue"
 )
 
 type (
-	Option func(*MapReduceOption)
-
-	MapReduceOption struct {
-		ctx     context.Context
-		workers int
-	}
-
 	Writer interface {
 		Write(any)
 	}
@@ -40,40 +34,12 @@ type (
 	Interface interface {
 		From(producer Producer) Interface
 		Map(mapper Mapper) Interface
-		Filters(filters ...Filter) Interface
+		Filter(filters ...Filter) Interface
 		Reduce(reducer Reducer) Interface
 		Do() (any, error)
 		Error() error
 	}
 )
-
-const (
-	defaultWorkers = 8
-	miniWorkers    = 1
-)
-
-func WithContext(ctx context.Context) Option {
-	return func(opt *MapReduceOption) {
-		opt.ctx = ctx
-	}
-}
-
-func WithWorkers(workers int) Option {
-	return func(opts *MapReduceOption) {
-		if workers < 1 {
-			opts.workers = 1
-		} else {
-			opts.workers = workers
-		}
-	}
-}
-
-func newOptions() *MapReduceOption {
-	return &MapReduceOption{
-		ctx:     context.Background(),
-		workers: defaultWorkers,
-	}
-}
 
 func New(opts ...Option) Interface {
 	options := newOptions()
@@ -145,7 +111,7 @@ func (mr *mapreduce) Map(mapper Mapper) Interface {
 	return mr
 }
 
-func (mr *mapreduce) Filters(filters ...Filter) Interface {
+func (mr *mapreduce) Filter(filters ...Filter) Interface {
 	if mr.err != nil {
 		return mr
 	}
@@ -185,7 +151,7 @@ func (mr *mapreduce) Do() (any, error) {
 		return mr.err, nil
 	}
 
-	source := newQueue(make(chan any))
+	source := workqueue.NewChannelQueue(make(chan any))
 	errCh := make(chan error)
 	defer close(errCh)
 
@@ -199,7 +165,7 @@ func (mr *mapreduce) Do() (any, error) {
 	}()
 
 	// run worker
-	output := newQueue(make(chan any, mr.options.workers))
+	output := workqueue.NewChannelQueue(make(chan any, mr.options.workers))
 
 	go func() {
 		defer output.Stop()
