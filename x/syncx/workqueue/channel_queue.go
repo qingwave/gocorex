@@ -1,13 +1,13 @@
 package workqueue
 
-import "go.uber.org/atomic"
+import "sync/atomic"
 
 func NewChannelQueue(ch chan any) WorkQueue {
 	if ch == nil {
 		ch = make(chan any)
 	}
 
-	return &channelQueue{ch: ch, stop: atomic.NewBool(false)}
+	return &channelQueue{ch: ch, stop: new(atomic.Bool)}
 }
 
 type channelQueue struct {

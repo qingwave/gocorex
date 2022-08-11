@@ -2,12 +2,12 @@ package cron
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/qingwave/gocorex/x/containerx"
 
 	"github.com/go-logr/logr"
-	"go.uber.org/atomic"
 )
 
 type Interface interface {
@@ -140,7 +140,7 @@ func NewCron(logger logr.Logger) Interface {
 		tasks:   h,
 		set:     containerx.NewSet[string](),
 		new:     make(chan struct{}, 8),
-		started: atomic.NewBool(false),
+		started: new(atomic.Bool),
 		logger:  logger,
 	}
 }

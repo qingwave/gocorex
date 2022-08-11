@@ -1,6 +1,6 @@
 module github.com/qingwave/gocorex
 
-go 1.18
+go 1.19
 
 require (
 	github.com/go-logr/logr v1.2.3
@@ -10,7 +10,6 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
-	go.uber.org/atomic v1.9.0
 )
 
 require (
@@ -23,6 +22,7 @@ require (
 	github.com/onsi/gomega v1.19.0 // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
