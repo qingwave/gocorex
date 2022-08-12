@@ -20,7 +20,8 @@ Gocorex is a collection golang useful utils for distributed system and microserv
 - [ZooKeeper discovery](discovery/zkdiscovery/)
 
 ### PubSub
-- [Etcd PubSub](pubsub)
+- [PubSub](pubsub)
+- [Etcd PubSub](pubsub/etcdpubsub)
 
 ### Cron
 - [Cron with min-heap](cron/cron.go), implemented by minimal heap
@@ -30,6 +31,9 @@ Gocorex is a collection golang useful utils for distributed system and microserv
 - [Group](syncx/group/group.go), wrap the WaitGroup
 - [ErrGroup](syncx/group/errgroup.go), run groups of goroutines, context cancel when meet error
 - [CtrlGroup](syncx/group/ctrlgroup.go), run special number goroutines
+
+### Metrics
+- [Http state metrics](metrics/http.go), http prometheus metrics handler middleware
 
 ### Data structures
 - [Set](containerx/set.go), hash set with generics
