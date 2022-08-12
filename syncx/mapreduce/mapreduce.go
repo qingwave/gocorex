@@ -151,86 +151,33 @@ func (mr *mapreduce) Do() (any, error) {
 		return mr.err, nil
 	}
 
-	source := workqueue.NewChannelQueue(make(chan any))
 	errCh := make(chan error)
 	defer close(errCh)
 
 	// produce data
+	source := workqueue.NewChannelQueue(make(chan any))
 	go func() {
-		defer func() {
-			source.Stop()
-		}()
+		defer source.Stop()
 
 		errCh <- mr.producer(source)
 	}()
 
 	// run worker
 	output := workqueue.NewChannelQueue(make(chan any, mr.options.workers))
-
 	go func() {
 		defer output.Stop()
 
-		g := group.NewErrGroup(mr.options.ctx)
-		for i := 0; i < mr.options.workers; i++ {
-			g.Go(func(ctx context.Context) error {
-				for {
-					select {
-					case <-ctx.Done():
-						return nil
-					default:
-					}
-
-					item, ok := source.Read()
-					if item == nil && !ok {
-						return nil
-					}
-
-					if item == nil && ok {
-						continue
-					}
-
-					var skip bool
-					for _, filter := range mr.filters {
-						ok, err := filter(item)
-						if err != nil {
-							return err
-						}
-						if !ok {
-							skip = true
-							break
-						}
-					}
-
-					if skip {
-						continue
-					}
-
-					val, err := mr.mapper(item)
-					if err != nil {
-						return err
-					}
-
-					output.Write(val)
-				}
-			})
-		}
-
-		errCh <- g.Wait()
+		errCh <- mr.runWorker(source, output)
 	}()
 
 	resp := make(chan any)
 	defer close(resp)
 
+	// run reducer
 	go func() {
-		var out any
-		var err error
-
-		defer func() {
-			errCh <- err
-			resp <- out
-		}()
-
-		out, err = mr.reducer(output)
+		out, err := mr.reducer(output)
+		errCh <- err
+		resp <- out
 	}()
 
 	for {
@@ -253,4 +200,54 @@ func (mr *mapreduce) Do() (any, error) {
 			}
 		}
 	}
+}
+
+func (mr *mapreduce) runWorker(source, output workqueue.WorkQueue) error {
+	g := group.NewErrGroup(mr.options.ctx)
+
+	for i := 0; i < mr.options.workers; i++ {
+		g.Go(func(ctx context.Context) error {
+			for {
+				select {
+				case <-ctx.Done():
+					return nil
+				default:
+				}
+
+				item, ok := source.Read()
+				if item == nil && !ok {
+					return nil
+				}
+
+				if item == nil && ok {
+					continue
+				}
+
+				var skip bool
+				for _, filter := range mr.filters {
+					ok, err := filter(item)
+					if err != nil {
+						return err
+					}
+					if !ok {
+						skip = true
+						break
+					}
+				}
+
+				if skip {
+					continue
+				}
+
+				val, err := mr.mapper(item)
+				if err != nil {
+					return err
+				}
+
+				output.Write(val)
+			}
+		})
+	}
+
+	return g.Wait()
 }
