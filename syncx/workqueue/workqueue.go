@@ -70,6 +70,11 @@ func (q *Type) Stop() {
 func (q *Type) shutdown() {
 	q.cond.L.Lock()
 	defer q.cond.L.Unlock()
+	
+	if q.shuttingDown {
+		return
+	}
+
 	q.shuttingDown = true
 	q.cond.Broadcast()
 }
