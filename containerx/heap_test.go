@@ -27,4 +27,10 @@ func TestHeap(t *testing.T) {
 	if h.Len() != old {
 		t.Errorf("expected len %d, got %d", old, h.Len())
 	}
+
+	expected := h.data[1]
+	removed := h.Remove(1)
+	if removed != expected {
+		t.Errorf("expected remove value %d, got %d", expected, removed)
+	}
 }

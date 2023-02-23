@@ -29,9 +29,7 @@ func (h *Heap[T]) Pop() (T, bool) {
 	h.Swap(0, n)
 	h.down(0, n)
 
-	item := h.data[h.Len()-1]
-	h.data[h.Len()-1] = t // set zero value
-	h.data = h.data[0 : h.Len()-1]
+	item := h.pop()
 	return item, true
 }
 
@@ -58,8 +56,7 @@ func (h *Heap[T]) Remove(i int) T {
 		}
 	}
 
-	t, _ := h.Pop()
-	return t
+	return h.pop()
 }
 
 func (h *Heap[T]) Fix(i int) {
@@ -86,6 +83,14 @@ func (h *Heap[T]) Less(i, j int) bool {
 
 func (h *Heap[T]) Swap(i, j int) {
 	h.data[i], h.data[j] = h.data[j], h.data[i]
+}
+
+func (h *Heap[T]) pop() T {
+	var t T
+	item := h.data[h.Len()-1]
+	h.data[h.Len()-1] = t // set zero value
+	h.data = h.data[0 : h.Len()-1]
+	return item
 }
 
 func (h *Heap[T]) up(j int) {
