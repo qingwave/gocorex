@@ -7,7 +7,7 @@ import (
 	"go.etcd.io/etcd/client/v3/concurrency"
 )
 
-type EctdLeaderElection struct {
+type EtcdLeaderElection struct {
 	LeaderElectionConfig
 	session  *concurrency.Session
 	election *concurrency.Election
@@ -52,7 +52,7 @@ type LeaderCallbacks struct {
 	OnNewLeader func(identity string)
 }
 
-func New(config LeaderElectionConfig) (*EctdLeaderElection, error) {
+func New(config LeaderElectionConfig) (*EtcdLeaderElection, error) {
 	session, err := concurrency.NewSession(config.Client, concurrency.WithTTL(config.LeaseSeconds))
 	if err != nil {
 		return nil, err
@@ -60,14 +60,14 @@ func New(config LeaderElectionConfig) (*EctdLeaderElection, error) {
 
 	election := concurrency.NewElection(session, config.Prefix)
 
-	return &EctdLeaderElection{
+	return &EtcdLeaderElection{
 		LeaderElectionConfig: config,
 		session:              session,
 		election:             election,
 	}, nil
 }
 
-func (le *EctdLeaderElection) Run(ctx context.Context) error {
+func (le *EtcdLeaderElection) Run(ctx context.Context) error {
 	defer func() {
 		le.Callbacks.OnStoppedLeading()
 	}()
@@ -86,7 +86,7 @@ func (le *EctdLeaderElection) Run(ctx context.Context) error {
 	return nil
 }
 
-func (le *EctdLeaderElection) observe(ctx context.Context) {
+func (le *EtcdLeaderElection) observe(ctx context.Context) {
 	if le.Callbacks.OnNewLeader == nil {
 		return
 	}
@@ -113,6 +113,6 @@ func (le *EctdLeaderElection) observe(ctx context.Context) {
 	}
 }
 
-func (le *EctdLeaderElection) Close() error {
+func (le *EtcdLeaderElection) Close() error {
 	return le.session.Close()
 }

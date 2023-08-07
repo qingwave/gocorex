@@ -1,6 +1,7 @@
 package group
 
 import (
+	"context"
 	"sync"
 )
 
@@ -22,4 +23,22 @@ func (g *Group) Go(f func()) {
 		defer g.wg.Done()
 		f()
 	}()
+}
+
+func (g *Group) GoN(num int, f func()) {
+	for i := 0; i < num; i++ {
+		g.Go(f)
+	}
+}
+
+func (g *Group) StartWithChannel(stopCh <-chan struct{}, f func(stopCh <-chan struct{})) {
+	g.Go(func() {
+		f(stopCh)
+	})
+}
+
+func (g *Group) StartWithContext(ctx context.Context, f func(context.Context)) {
+	g.Go(func() {
+		f(ctx)
+	})
 }
