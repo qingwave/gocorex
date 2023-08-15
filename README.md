@@ -38,6 +38,8 @@ Gocorex is a collection golang useful utils for distributed system and microserv
 ### Data structures
 - [Set](containerx/set.go), hash set with generics
 - [Heap](containerx/heap.go), heap with generics
+- [Queue](containerx/queue.go), queue with generics
+- [Ring](containerx/ring.go), ring queue with generics
 
 ### utils
 - [trace](trace), recoding the latency of operations
