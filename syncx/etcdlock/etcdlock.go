@@ -2,11 +2,19 @@ package etcdlock
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/qingwave/gocorex/syncx"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
+)
+
+var (
+	ErrInvaildClient = errors.New("invaild etcd client")
+	ErrTimeout       = errors.New("connect to etcd timeout")
+	DefaultTimeout   = 5 * time.Second
 )
 
 type EtcdLockConfig struct {
@@ -22,18 +30,44 @@ type EtcdLock struct {
 }
 
 func New(config EtcdLockConfig) (syncx.Locker, error) {
-	session, err := concurrency.NewSession(config.Client, concurrency.WithTTL(config.TTLSeconds))
-	if err != nil {
-		return nil, err
+	if config.Client == nil {
+		return nil, ErrInvaildClient
 	}
 
-	mutex := concurrency.NewMutex(session, config.Prefix)
+	timeout := DefaultTimeout
+	if config.TTLSeconds > 0 {
+		timeout = time.Duration(config.TTLSeconds) * time.Second
+	}
 
-	return &EtcdLock{
+	locker := &EtcdLock{
 		EtcdLockConfig: config,
-		session:        session,
-		mutex:          mutex,
-	}, nil
+	}
+
+	errCh := make(chan error)
+	defer close(errCh)
+
+	go func() {
+		var err error
+		locker.session, err = concurrency.NewSession(config.Client, concurrency.WithTTL(config.TTLSeconds))
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		locker.mutex = concurrency.NewMutex(locker.session, config.Prefix)
+		errCh <- nil
+	}()
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			return nil, err
+		}
+	case <-time.After(timeout):
+		return nil, ErrTimeout
+	}
+
+	return locker, nil
 }
 
 func (l *EtcdLock) TryLock(ctx context.Context) (bool, error) {
@@ -56,5 +90,8 @@ func (l *EtcdLock) UnLock(ctx context.Context) error {
 }
 
 func (l *EtcdLock) Close() error {
-	return l.session.Close()
+	if l.session != nil {
+		return l.session.Close()
+	}
+	return nil
 }

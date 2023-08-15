@@ -24,6 +24,7 @@ func main() {
 	counter := 0
 	prefix := "/worker/lock"
 	worker := func(i int) {
+		log.Printf("worker %d try to lock", i)
 		m, err := etcdlock.New(etcdlock.EtcdLockConfig{
 			Client:     client,
 			Prefix:     prefix,
